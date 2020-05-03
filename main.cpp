@@ -2,44 +2,99 @@
 #include <fstream>
 #include <vector>
 #include <set>
+#include <iterator>
 #include "utilities.h"
 
 
 
 using namespace std;
+
+
+
+
 vector < pair<string, string>> productions;
 
 /* given a symbol  "symbol"
 	returns a set of all symbols
 	that can produce it
 	*/
-set<string> search(string symbol);
+set<string> search(string symbol) {
+
+	set<string> x;
+
+	for (int i = 0; i < productions.size(); i++) {
+		if (productions[i].second == symbol)
+			x.insert(productions[i].first);
+	}
+
+	return x;
+}
 /* generalization of the above
    returns a set of symbols that
    can produce a set of symbols
    */
-set<string> search(set<string> ss);
+set<string> search(set<string> ss) {
+	set<string> x;
+	set <string> ::iterator itr;
+	for (itr = ss.begin(); itr != ss.end(); ++itr)
+	{
+		set<string> y = search(*itr);
+		x = merge(x, y);
+	}
+
+	return x;
+}
+
+
 /* this is the heart of
    the CYK algorithm
    it takes an argument a matrix m
    and string imput and "fills"
    the solution
    */
+void solve(Matrix<set<string>>& m, string input) {
+	string symbol;
+	set<string> result;
+	set<string> s1;
+	set<string> s2;
+	int c1, c2;
 
-void solve(Matrix<set<string>>& m, string input);
+	for (int j = 0; j < m.getCols(); j++) {
+		for (int i = 0; i < m.getRows() - j; i++) {
+			if (j == 0) {
+				symbol = input[i];
+				m[i][j] = search(symbol);
+			}
+
+			else {
+				c1 = j;
+				c2 = 1;
+
+				while (c2 <= j) {
+					s1 = search(cartesian(m[i][j - c1], m[i + c2][j - c2]));
+					m[i][j] = merge(s1, m[i][j]);
+					c1--;
+					c2++;
+
+				}
+			}
+		}
+	}
+}
+
 
 int main() {
 	cout << "input a string\n";
 	string input;
 	cin >> input;
-	/* Assumes that the starting 
+	/* Assumes that the starting
 		symbol is "S"
 		*/
-	Matrix<set<string>> table(input.length(), input.length()) ;
+	Matrix<set<string>> table(input.length(), input.length());
 	std::ifstream file;
-	/* read the cfg from file "cfg.txt" 
+	/* read the cfg from file "cfg.txt"
 	   if the grammar is CNF*/
-	file.open("cfg.txt");
+	file.open("cfg2.txt");
 	int np;
 	std::string pr;
 	std::string left, right;
@@ -62,7 +117,9 @@ int main() {
 		pair<string, string> p(left, right);
 		productions.push_back(p);
 	}
+
 	solve(table, input);
+
 	file.close();
 	/* the startig symbol is assumed
 		to be S
@@ -73,5 +130,7 @@ int main() {
 	}
 	else
 		std::cout << "does not belong to language\n";
+
+	productions;
 
 }

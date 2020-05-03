@@ -1,5 +1,3 @@
-S
-8
 S->AB
 S->BC
 A->BA

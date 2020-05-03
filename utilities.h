@@ -1,6 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <set>
+#include <iterator>
+#include <algorithm>
+
 
 using namespace std;
 
@@ -34,11 +38,24 @@ public:
    doesn't look good either
    */
 template <typename T>
-set<T>& merge(set<T>& ls,set<T>& rs);
+set<T>& merge(set<T>& ls, set<T>& rs) {
+	ls.insert(rs.begin(), rs.end());
+	return ls;
+}
 
 /* returns the cartesian 
 	product of two sets
 	*/
 template <typename T>
 set<T> cartesian(set<T>& s1,
-	set<T>& s2);
+	set<T>& s2) {
+	set<T> x; 
+	string y;
+	for (auto elem1 : s1) {
+		for (auto elem2 : s2) {
+			y = elem1 + elem2;
+			x.insert(y);
+		}
+	}
+	return x;
+}
